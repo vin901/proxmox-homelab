@@ -31,7 +31,7 @@
 #     the implications of passing through disks to a VM.
 #
 # Author:
-#   [Your Name or Organization]
+#   Pedro Anisio Silva / ARC4D3
 #
 # License:
 #   This script is provided "as is", without warranty of any kind, express 
