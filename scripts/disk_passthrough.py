@@ -61,8 +61,8 @@ def enumerate_physical_disks():
         lines = output.strip().split("\n")[1:]  # Skip the header line
         disks = []
         for line in lines:
-            parts = line.split(maxsplit=2)
-            if len(parts) == 3 and all(parts) and parts[0] not in zfs_disk_names:
+            parts = line.split(maxsplit=3)
+            if len(parts) == 4 and all(parts) and parts[0] not in zfs_disk_names:
                 # Find the first matching /dev/disk/by-id path
                 print(f"find /dev/disk-by-id/ -lname {parts[0]}") #DEBUG
                 id_paths = subprocess.check_output(
@@ -74,7 +74,7 @@ def enumerate_physical_disks():
                     # Prioritize `wwn-*` over `ata-*` if both exist
                     prioritized_path = next((p for p in id_paths if "wwn-" in p), id_paths[0])
                     #disks.append({"name": parts[0], "model": parts[1], "size": parts[2], "id_path": prioritized_path})
-                    disks.append("": {parts[0], "model": parts[1], "serial": parts[2], "size": parts[3], "id_path": prioritized_path})
+                    disks.append({"name": parts[0], "model": parts[1], "serial": parts[2], "size": parts[3], "id_path": prioritized_path})
         return disks
     except subprocess.CalledProcessError as e:
         logging.error(f"Error executing lsblk or zpool commands: {e}")
