@@ -64,11 +64,13 @@ def enumerate_physical_disks():
             parts = line.split(maxsplit=2)
             if len(parts) == 3 and all(parts) and parts[0] not in zfs_disk_names:
                 # Find the first matching /dev/disk/by-id path
+                print(f"find /dev/disk-by-id/ -lname {parts[0]}") #DEBUG
                 id_paths = subprocess.check_output(
                     ["find", "/dev/disk/by-id/", "-lname", f"*{parts[0]}"],
                     text=True,
                 ).splitlines()
                 if id_paths:
+                    print("Found id_paths")   #DEBUG
                     # Prioritize `wwn-*` over `ata-*` if both exist
                     prioritized_path = next((p for p in id_paths if "wwn-" in p), id_paths[0])
                     #disks.append({"name": parts[0], "model": parts[1], "size": parts[2], "id_path": prioritized_path})
