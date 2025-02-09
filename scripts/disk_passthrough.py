@@ -53,6 +53,7 @@ def enumerate_physical_disks():
     """
     try:
         output = subprocess.check_output(["lsblk", "-d", "-o", "NAME,MODEL,SERIAL,SIZE"], text=True)
+        output = re.sub(r'([a-zA-Z]) ([a-zA-Z])', r'\1-\2', output) # Replace single spaces surrounded by letters with hyphen (for disk models)
         print( "lsblk -d -o NAME,MODEL,SERIAL,SIZE") #DEBUG
         zfs_disks_output = subprocess.check_output(["zpool", "status"], text=True).split("\n")
         zfs_disk_names = {line.split()[0] for line in zfs_disks_output if "ONLINE" in line}
@@ -71,7 +72,7 @@ def enumerate_physical_disks():
                     # Prioritize `wwn-*` over `ata-*` if both exist
                     prioritized_path = next((p for p in id_paths if "wwn-" in p), id_paths[0])
                     #disks.append({"name": parts[0], "model": parts[1], "size": parts[2], "id_path": prioritized_path})
-                    disks.append({parts[0], "model": parts[1], "serial": parts[2], "size": parts[3], "id_path": prioritized_path})
+                    disks.append("": {parts[0], "model": parts[1], "serial": parts[2], "size": parts[3], "id_path": prioritized_path})
         return disks
     except subprocess.CalledProcessError as e:
         logging.error(f"Error executing lsblk or zpool commands: {e}")
