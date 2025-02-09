@@ -52,7 +52,8 @@ def enumerate_physical_disks():
     :return: List of dictionaries representing physical disks.
     """
     try:
-        output = subprocess.check_output(["lsblk", "-d", "-o", "NAME,MODEL,SIZE"], text=True)
+        output = subprocess.check_output(["lsblk", "-d", "-o", "NAME,MODEL,SERIAL,SIZE"], text=True)
+        print( "lsblk -d -o NAME,MODEL,SERIAL,SIZE") #DEBUG
         zfs_disks_output = subprocess.check_output(["zpool", "status"], text=True).split("\n")
         zfs_disk_names = {line.split()[0] for line in zfs_disks_output if "ONLINE" in line}
 
@@ -69,7 +70,8 @@ def enumerate_physical_disks():
                 if id_paths:
                     # Prioritize `wwn-*` over `ata-*` if both exist
                     prioritized_path = next((p for p in id_paths if "wwn-" in p), id_paths[0])
-                    disks.append({"name": parts[0], "model": parts[1], "size": parts[2], "id_path": prioritized_path})
+                    #disks.append({"name": parts[0], "model": parts[1], "size": parts[2], "id_path": prioritized_path})
+                    disks.append({parts[0], "model": parts[1], "serial": parts[2], "size": parts[3], "id_path": prioritized_path})
         return disks
     except subprocess.CalledProcessError as e:
         logging.error(f"Error executing lsblk or zpool commands: {e}")
@@ -149,6 +151,7 @@ def validate_disk_selection(selected_disks, available_disks):
         if not any(
             disk["name"] == selected_disk["name"] and
             disk["model"] == selected_disk["model"] and
+            disk["serial"] == selected_disk["serial"] and
             disk["size"] == selected_disk["size"]
             for disk in available_disks
         ):
